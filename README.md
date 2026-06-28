@@ -6,6 +6,14 @@ The project uses Next.js App Router for both the frontend and backend API. Front
 
 This project does not use Supabase, NextAuth, Express, or a separate backend service.
 
+## Deployment
+
+Live deployment:
+
+```txt
+https://talentgrowth-blog-platform-phi.vercel.app/
+```
+
 ## Features
 
 - User registration, login, logout, and protected password changes
