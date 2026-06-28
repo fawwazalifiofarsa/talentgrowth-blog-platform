@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { signOutAction } from "@/app/(auth)/actions";
+import { MobileNavbar } from "@/components/mobile-navbar";
 import { getCurrentUser } from "@/lib/auth/server";
 
 const guestLinks = [
@@ -10,8 +11,9 @@ const guestLinks = [
 ];
 
 const authenticatedLinks = [
+  { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/profile/password", label: "Change password" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export async function Navbar() {
@@ -20,11 +22,12 @@ export async function Navbar() {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-5xl items-center justify-start gap-4 px-4 py-4 sm:justify-between sm:px-6 lg:px-8">
+        <MobileNavbar links={links} isAuthenticated={Boolean(user)} />
         <Link href="/" className="text-lg font-semibold text-slate-950">
           Talent Growth Blog
         </Link>
-        <nav aria-label="Primary navigation">
+        <nav aria-label="Primary navigation" className="hidden sm:block">
           <ul className="flex flex-wrap gap-2 text-sm font-medium text-slate-700">
             {links.map((link) => (
               <li key={link.href}>

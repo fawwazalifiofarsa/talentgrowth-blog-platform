@@ -51,10 +51,10 @@ export function ChangePasswordForm() {
       />
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
-          href="/dashboard"
+          href="/profile"
           className="inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
         >
-          Back to dashboard
+          Back to profile
         </Link>
         <button
           type="submit"

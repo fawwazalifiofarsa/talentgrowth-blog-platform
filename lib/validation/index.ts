@@ -87,3 +87,15 @@ export function validateCommentInput(
 ): ValidationResult<CommentInput> {
   return validateSchema(commentSchema, input);
 }
+
+const profileSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+});
+
+export type ProfileInput = z.infer<typeof profileSchema>;
+
+export function validateProfileInput(
+  input: unknown,
+): ValidationResult<ProfileInput> {
+  return validateSchema(profileSchema, input);
+}

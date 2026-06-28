@@ -29,6 +29,16 @@ export type ApiAuthor = {
   avatarUrl: string | null;
 };
 
+export type ProfileUser = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string | null;
+  avatarPath?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type PostSummary = {
   id: string;
   title: string;
@@ -72,6 +82,16 @@ export type PaginationMeta = {
 export type PostsResponse = {
   posts: PostSummary[];
   pagination: PaginationMeta;
+};
+
+export type ProfileResponse = {
+  user: ProfileUser;
+  posts: Omit<PostSummary, "author">[];
+};
+
+export type AvatarUploadResponse = {
+  avatarUrl: string;
+  avatarPath: string;
 };
 
 export class ApiClientError extends Error {
