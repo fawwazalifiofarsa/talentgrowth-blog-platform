@@ -56,3 +56,22 @@ export function validateChangePasswordInput(
 ): ValidationResult<ChangePasswordInput> {
   return validateSchema(changePasswordSchema, input);
 }
+
+const optionalPostTextSchema = z
+  .string()
+  .trim()
+  .nullish()
+  .transform((value) => (value ? value : null));
+
+const postSchema = z.object({
+  title: z.string().trim().min(1, "Title is required"),
+  description: optionalPostTextSchema,
+  content: z.string().trim().min(1, "Content is required"),
+  category: optionalPostTextSchema,
+});
+
+export type PostInput = z.infer<typeof postSchema>;
+
+export function validatePostInput(input: unknown): ValidationResult<PostInput> {
+  return validateSchema(postSchema, input);
+}
