@@ -1,50 +1,111 @@
-export default function Home() {
+import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
+import { Pagination } from "@/components/pagination";
+import { PostCard } from "@/components/post-card";
+import { SearchInput } from "@/components/search-input";
+import { ApiClientError, fetchApi, type PostsResponse } from "@/lib/api/client";
+
+type HomeProps = {
+  searchParams: Promise<{
+    page?: string;
+    limit?: string;
+    search?: string;
+  }>;
+};
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
+function getPositiveInteger(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function getPostsPath(page: number, limit: number, search: string) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("limit", String(limit));
+
+  if (search) {
+    params.set("search", search);
+  }
+
+  return `/api/posts?${params.toString()}`;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const page = getPositiveInteger(params.page, DEFAULT_PAGE);
+  const requestedLimit = getPositiveInteger(params.limit, DEFAULT_LIMIT);
+  const limit = Math.min(requestedLimit, MAX_LIMIT);
+  const search = params.search?.trim() ?? "";
+
+  let postsResponse: PostsResponse | null = null;
+  let errorMessage: string | null = null;
+
+  try {
+    postsResponse = await fetchApi<PostsResponse>(
+      getPostsPath(page, limit, search),
+    );
+  } catch (error) {
+    errorMessage =
+      error instanceof ApiClientError ? error.message : "Failed to fetch posts";
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
       <section className="space-y-3">
-        <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
+        <p className="text-sm font-medium uppercase text-slate-500">
           Blog Platform
         </p>
         <div className="max-w-3xl space-y-4">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-            Read and write focused developer posts.
+          <h1 className="text-4xl font-semibold text-slate-950 sm:text-5xl">
+            Read focused developer posts.
           </h1>
           <p className="text-lg leading-8 text-slate-600">
-            A clean foundation for posts, comments, profiles, search,
-            pagination, and Markdown writing.
+            Browse practical writing from the Talent Growth Blog, search by
+            topic, and open each post for the full article.
           </p>
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="post-search">
-            Search posts
-          </label>
-          <input
-            id="post-search"
-            type="search"
-            name="search"
-            placeholder="Search posts"
-            disabled
-            className="min-h-11 flex-1 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-500 shadow-sm"
-          />
-          <button
-            type="button"
-            disabled
-            className="min-h-11 rounded-md bg-slate-900 px-4 text-sm font-medium text-white opacity-60"
-          >
-            Search
-          </button>
-        </div>
+      <section className="space-y-5">
+        <SearchInput search={search} limit={limit} />
 
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
-          <h2 className="text-lg font-semibold text-slate-950">No posts yet.</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Post listing, search, and pagination will be connected in the next
-            feature workstream.
-          </p>
-        </div>
+        {errorMessage ? (
+          <ErrorState title="Unable to load posts." message={errorMessage} />
+        ) : null}
+
+        {!errorMessage && postsResponse?.posts.length === 0 ? (
+          <EmptyState
+            title={search ? "No matching posts." : "No posts yet."}
+            message={
+              search
+                ? "Try a different keyword or clear the search to view all posts."
+                : "Published posts will appear here when they are available."
+            }
+          />
+        ) : null}
+
+        {!errorMessage && postsResponse?.posts.length ? (
+          <>
+            <div className="grid gap-4 md:grid-cols-2">
+              {postsResponse.posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+            <Pagination
+              pagination={postsResponse.pagination}
+              search={search || undefined}
+            />
+          </>
+        ) : null}
       </section>
     </div>
   );

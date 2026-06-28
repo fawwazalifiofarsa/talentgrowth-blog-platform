@@ -5,9 +5,15 @@ import type { PaginationMeta } from "@/lib/api/client";
 type PaginationProps = {
   pagination: PaginationMeta;
   search?: string;
+  basePath?: string;
 };
 
-function getPageHref(page: number, limit: number, search?: string) {
+function getPageHref(
+  page: number,
+  limit: number,
+  search?: string,
+  basePath = "/",
+) {
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("limit", String(limit));
@@ -16,10 +22,14 @@ function getPageHref(page: number, limit: number, search?: string) {
     params.set("search", search);
   }
 
-  return `/?${params.toString()}`;
+  return `${basePath}?${params.toString()}`;
 }
 
-export function Pagination({ pagination, search }: PaginationProps) {
+export function Pagination({
+  pagination,
+  search,
+  basePath = "/",
+}: PaginationProps) {
   const hasPrevious = pagination.page > 1;
   const hasNext =
     pagination.totalPages > 0 && pagination.page < pagination.totalPages;
@@ -41,7 +51,7 @@ export function Pagination({ pagination, search }: PaginationProps) {
       <div className="flex gap-2">
         {hasPrevious ? (
           <Link
-            href={getPageHref(previousPage, pagination.limit, search)}
+            href={getPageHref(previousPage, pagination.limit, search, basePath)}
             className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-100 sm:flex-none"
           >
             Previous
@@ -53,7 +63,7 @@ export function Pagination({ pagination, search }: PaginationProps) {
         )}
         {hasNext ? (
           <Link
-            href={getPageHref(nextPage, pagination.limit, search)}
+            href={getPageHref(nextPage, pagination.limit, search, basePath)}
             className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-100 sm:flex-none"
           >
             Next

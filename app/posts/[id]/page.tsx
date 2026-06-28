@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { DeletePostButton } from "@/components/delete-post-button";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { ApiClientError, fetchApi, type PostDetail } from "@/lib/api/client";
+import { getCurrentUser } from "@/lib/auth/server";
 
 type PostDetailPageProps = {
   params: Promise<{
@@ -24,6 +26,7 @@ function getInitial(name: string) {
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { id } = await params;
+  const user = await getCurrentUser();
   let post: PostDetail | null = null;
   let error: ApiClientError | Error | null = null;
 
@@ -103,6 +106,17 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </p>
               ) : null}
             </div>
+            {user?.id === post.author.id ? (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <Link
+                  href={`/posts/${post.id}/edit`}
+                  className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
+                >
+                  Edit
+                </Link>
+                <DeletePostButton postId={post.id} />
+              </div>
+            ) : null}
           </header>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

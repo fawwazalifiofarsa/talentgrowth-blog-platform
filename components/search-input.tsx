@@ -3,11 +3,12 @@ import Link from "next/link";
 type SearchInputProps = {
   search?: string;
   limit: number;
+  action?: string;
 };
 
-export function SearchInput({ search, limit }: SearchInputProps) {
+export function SearchInput({ search, limit, action = "/" }: SearchInputProps) {
   return (
-    <form action="/" className="flex flex-col gap-3 sm:flex-row">
+    <form action={action} className="flex flex-col gap-3 sm:flex-row">
       <input type="hidden" name="limit" value={limit} />
       <label className="sr-only" htmlFor="post-search">
         Search posts
@@ -29,7 +30,7 @@ export function SearchInput({ search, limit }: SearchInputProps) {
         </button>
         {search ? (
           <Link
-            href={`/?limit=${limit}`}
+            href={`${action}?limit=${limit}`}
             className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-900 transition hover:bg-slate-100 sm:flex-none"
           >
             Clear

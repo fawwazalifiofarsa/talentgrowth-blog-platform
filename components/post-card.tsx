@@ -14,7 +14,13 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || "?";
 }
 
-export function PostCard({ post }: { post: PostSummary }) {
+export function PostCard({
+  post,
+  showManageActions = false,
+}: {
+  post: PostSummary;
+  showManageActions?: boolean;
+}) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4">
@@ -59,12 +65,22 @@ export function PostCard({ post }: { post: PostSummary }) {
               </p>
             </div>
           </div>
-          <Link
-            href={`/posts/${post.id}`}
-            className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
-          >
-            Read more
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {showManageActions ? (
+              <Link
+                href={`/posts/${post.id}/edit`}
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
+              >
+                Edit
+              </Link>
+            ) : null}
+            <Link
+              href={`/posts/${post.id}`}
+              className="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-300 px-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
+            >
+              Read more
+            </Link>
+          </div>
         </div>
       </div>
     </article>
