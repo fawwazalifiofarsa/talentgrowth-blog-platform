@@ -13,6 +13,7 @@ The project does not use external auth providers, a separate Node API server, or
 * Store passwords only as `password_hash`
 * Issue JWT access tokens
 * Verify JWTs in protected Route Handlers
+* Let authenticated users change their password
 * Enforce author-only post and comment actions
 
 ## Auth Routes
@@ -23,6 +24,7 @@ The case-study auth routes map to Next.js Route Handlers:
 POST /auth/register -> POST /api/auth/register
 POST /auth/login    -> POST /api/auth/login
 POST /auth/logout   -> POST /api/auth/logout
+PUT  /auth/password -> PUT  /api/auth/password
 ```
 
 ## Registration Flow
@@ -97,6 +99,41 @@ It returns:
 }
 ```
 
+
+## Protected Change Password Flow
+
+Email-based password reset is out of scope. The app does not implement forgot-password pages, reset-password pages, reset tokens, or email sending.
+
+Authenticated users can change their password from their account/profile area.
+
+```txt
+User submits current password and new password
+-> Frontend sends PUT /api/auth/password with Authorization: Bearer <token>
+-> Route Handler verifies the JWT
+-> Route Handler loads the current user with Prisma
+-> Route Handler compares current password with bcrypt
+-> Route Handler hashes the new password with bcrypt
+-> Prisma updates users.password_hash
+-> Route Handler returns a success message
+```
+
+Request:
+
+```json
+{
+  "currentPassword": "old-password",
+  "newPassword": "new-password"
+}
+```
+
+Rules:
+
+* User must be authenticated.
+* `currentPassword` is required.
+* `newPassword` is required.
+* The current password must match the stored hash.
+* The new password is stored only as a bcrypt hash.
+* The response must never include `password_hash`.
 ## Protected Request Flow
 
 The frontend sends the token on protected requests:
@@ -139,6 +176,7 @@ Authentication is required for:
 * View profile
 * Update profile
 * Upload avatar if implemented
+* Change own password
 
 Public users can:
 
@@ -178,7 +216,8 @@ Client-side visibility is only for user experience. The Route Handler must enfor
 | --- | ---: | --- |
 | Missing token | `401` | `Unauthorized` |
 | Invalid token | `401` | `Unauthorized` |
-| Invalid login | `401` | `Invalid email or password` |
+| Invalid login | 401 | Invalid email or password |
+| Incorrect current password | 400 or 403 | Current password is incorrect |
 | Duplicate email | `409` | `User already exists` |
 | Post not found | `404` | `Post not found` |
 | Comment not found | `404` | `Comment not found` |
@@ -194,4 +233,6 @@ Client-side visibility is only for user experience. The Route Handler must enfor
 * Protected Route Handlers verify JWTs.
 * Post and comment mutations verify ownership.
 * The frontend sends Bearer tokens for protected requests.
-* Logout removes the client token and calls `POST /api/auth/logout`.
+* Logout removes the client token and calls POST /api/auth/logout.
+* Password change verifies the current password before updating password_hash.
+

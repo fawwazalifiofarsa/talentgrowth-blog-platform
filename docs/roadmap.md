@@ -5,6 +5,7 @@ This roadmap tracks the Next.js App Router implementation for the Talent Growth 
 ## MVP Scope
 
 * User registration, login, and logout
+* Protected change password
 * JWT authentication
 * bcrypt password hashing
 * Blog post CRUD
@@ -54,6 +55,7 @@ Tasks:
 * Sign JWT access tokens.
 * Add server-side JWT verification helpers.
 * Add frontend token handling.
+* Add protected PUT /api/auth/password for changing the authenticated user's password.
 
 Expected result:
 
@@ -110,6 +112,7 @@ Tasks:
 * Add `PUT /api/profile` if needed by the UI.
 * Return safe user data and own posts.
 * Add profile page integration.
+* Add protected change password form in the profile/account area.
 * Add profile picture support later if included.
 
 Expected result:
@@ -149,9 +152,12 @@ Expected result:
 * Analytics dashboard
 * Draft scheduling
 * Email notifications
+* Email-based password reset
+* Forgot-password and reset-password flows
 * Rich text editor
 * Multi-tenant organizations
 * Teams or workspaces
 * Payments
 * Deployment automation
 * Git automation
+

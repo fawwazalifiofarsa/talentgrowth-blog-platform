@@ -72,6 +72,7 @@ The token is issued by `/api/auth/register` or `/api/auth/login`.
 POST /auth/register -> POST /api/auth/register
 POST /auth/login    -> POST /api/auth/login
 POST /auth/logout   -> POST /api/auth/logout
+PUT  /auth/password -> PUT  /api/auth/password
 
 GET  /posts         -> GET  /api/posts
 POST /posts         -> POST /api/posts
@@ -171,6 +172,47 @@ Response:
 }
 ```
 
+
+## Change Password
+
+```txt
+PUT /api/auth/password
+```
+
+Access: authenticated users only.
+
+Protected request:
+
+```txt
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "currentPassword": "old-password",
+  "newPassword": "new-password"
+}
+```
+
+Success response:
+
+```json
+{
+  "success": true,
+  "message": "Password updated successfully"
+}
+```
+
+Errors:
+
+* `401` unauthenticated
+* `400` validation error
+* `400` or `403` current password is incorrect
+* `500` unexpected server error
+
+Email-based forgot-password and reset-password endpoints are not implemented.
 ## Posts Routes
 
 ## Get Posts
@@ -399,7 +441,10 @@ Only `name` is required when updating the profile.
 | Register | `email` | Required and valid email |
 | Register | `password` | Required |
 | Login | `email` | Required and valid email |
-| Login | `password` | Required |
+| Login | password | Required |
+| Change password | currentPassword | Required |
+| Change password | 
+ewPassword | Required |
 | Post | `title` | Required |
 | Post | `content` | Required |
 | Comment | `content` | Required |
@@ -414,6 +459,7 @@ Only `name` is required when updating the profile.
 | Search posts | Yes | Yes | No |
 | View comments | Yes | Yes | No |
 | Register/login/logout | Yes | Yes | No |
+| Change password | No | Yes | Yes |
 | Create post | No | Yes | No |
 | Edit post | No | Yes | Yes |
 | Delete post | No | Yes | Yes |
@@ -422,3 +468,4 @@ Only `name` is required when updating the profile.
 | Delete comment | No | Yes | Yes |
 | View profile | No | Yes | Yes |
 | Update profile | No | Yes | Yes |
+
