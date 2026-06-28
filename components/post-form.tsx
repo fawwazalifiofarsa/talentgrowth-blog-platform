@@ -96,6 +96,10 @@ export function PostForm({
           defaultValue={getValue(state, initialValues, "content")}
           className="w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-950 shadow-sm outline-none focus:border-slate-900"
         />
+        <p className="text-sm leading-6 text-slate-500">
+          Markdown is supported. You can use headings, lists, links, bold text,
+          and code blocks.
+        </p>
         {state.errors?.content ? (
           <p className="text-sm text-red-600">{state.errors.content}</p>
         ) : null}

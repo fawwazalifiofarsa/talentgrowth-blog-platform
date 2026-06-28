@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { Pagination } from "@/components/pagination";
@@ -39,6 +41,18 @@ function getPostsPath(page: number, limit: number, search: string) {
   return `/api/posts?${params.toString()}`;
 }
 
+function getHomePath(page: number, limit: number, search: string) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("limit", String(limit));
+
+  if (search) {
+    params.set("search", search);
+  }
+
+  return `/?${params.toString()}`;
+}
+
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const page = getPositiveInteger(params.page, DEFAULT_PAGE);
@@ -56,6 +70,14 @@ export default async function Home({ searchParams }: HomeProps) {
   } catch (error) {
     errorMessage =
       error instanceof ApiClientError ? error.message : "Failed to fetch posts";
+  }
+
+  if (
+    postsResponse &&
+    postsResponse.pagination.totalPages > 0 &&
+    page > postsResponse.pagination.totalPages
+  ) {
+    redirect(getHomePath(postsResponse.pagination.totalPages, limit, search));
   }
 
   return (

@@ -5,6 +5,7 @@ import { CommentList } from "@/components/comment-list";
 import { DeletePostButton } from "@/components/delete-post-button";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import {
   ApiClientError,
   fetchApi,
@@ -142,9 +143,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </header>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="whitespace-pre-wrap break-words text-base leading-8 text-slate-800">
-              {post.content}
-            </div>
+            <MarkdownRenderer content={post.content} />
           </div>
 
           <section className="space-y-5">
