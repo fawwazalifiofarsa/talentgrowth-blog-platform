@@ -75,3 +75,15 @@ export type PostInput = z.infer<typeof postSchema>;
 export function validatePostInput(input: unknown): ValidationResult<PostInput> {
   return validateSchema(postSchema, input);
 }
+
+const commentSchema = z.object({
+  content: z.string().trim().min(1, "Comment content is required"),
+});
+
+export type CommentInput = z.infer<typeof commentSchema>;
+
+export function validateCommentInput(
+  input: unknown,
+): ValidationResult<CommentInput> {
+  return validateSchema(commentSchema, input);
+}

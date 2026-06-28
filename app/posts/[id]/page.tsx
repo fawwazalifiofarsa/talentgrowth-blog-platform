@@ -1,9 +1,16 @@
 import Link from "next/link";
 
+import { CommentForm } from "@/components/comment-form";
+import { CommentList } from "@/components/comment-list";
 import { DeletePostButton } from "@/components/delete-post-button";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
-import { ApiClientError, fetchApi, type PostDetail } from "@/lib/api/client";
+import {
+  ApiClientError,
+  fetchApi,
+  type CommentsResponse,
+  type PostDetail,
+} from "@/lib/api/client";
 import { getCurrentUser } from "@/lib/auth/server";
 
 type PostDetailPageProps = {
@@ -29,6 +36,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const user = await getCurrentUser();
   let post: PostDetail | null = null;
   let error: ApiClientError | Error | null = null;
+  let commentsResponse: CommentsResponse | null = null;
+  let commentsError: string | null = null;
 
   try {
     post = await fetchApi<PostDetail>(`/api/posts/${id}`);
@@ -37,6 +46,19 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       caughtError instanceof Error
         ? caughtError
         : new Error("Failed to fetch post");
+  }
+
+  if (post) {
+    try {
+      commentsResponse = await fetchApi<CommentsResponse>(
+        `/api/posts/${post.id}/comments`,
+      );
+    } catch (caughtError) {
+      commentsError =
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Failed to fetch comments";
+    }
   }
 
   return (
@@ -125,11 +147,28 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           </div>
 
-          <section className="rounded-lg border border-dashed border-slate-300 bg-white p-5">
-            <h2 className="text-lg font-semibold text-slate-950">Comments</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Comments will be added in the next batch.
-            </p>
+          <section className="space-y-5">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold text-slate-950">
+                Comments
+              </h2>
+              <p className="text-sm leading-6 text-slate-600">
+                Read and join the discussion for this post.
+              </p>
+            </div>
+            <CommentForm postId={post.id} isAuthenticated={Boolean(user)} />
+            {commentsError ? (
+              <ErrorState
+                title="Unable to load comments."
+                message={commentsError}
+              />
+            ) : (
+              <CommentList
+                comments={commentsResponse?.comments ?? []}
+                postId={post.id}
+                currentUserId={user?.id}
+              />
+            )}
           </section>
         </article>
       ) : null}

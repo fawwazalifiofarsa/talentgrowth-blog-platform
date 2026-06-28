@@ -7,6 +7,11 @@ type ApiSuccess<T> = {
   data: T;
 };
 
+type ApiMessage = {
+  success: true;
+  message: string;
+};
+
 type ApiError = {
   success: false;
   message: string;
@@ -16,7 +21,7 @@ type ApiValidationError = ApiError & {
   errors: Record<string, string>;
 };
 
-type ApiResponse<T> = ApiSuccess<T> | ApiError | ApiValidationError;
+type ApiResponse<T> = ApiSuccess<T> | ApiMessage | ApiError | ApiValidationError;
 
 export type ApiAuthor = {
   id: string;
@@ -35,6 +40,26 @@ export type PostSummary = {
 
 export type PostDetail = PostSummary & {
   content: string;
+};
+
+export type CommentAuthor = {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+};
+
+export type Comment = {
+  id: string;
+  content: string;
+  postId?: string;
+  authorId?: string;
+  createdAt: string;
+  updatedAt: string;
+  author: CommentAuthor;
+};
+
+export type CommentsResponse = {
+  comments: Comment[];
 };
 
 export type PaginationMeta = {
@@ -89,5 +114,5 @@ export async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> 
     throw new ApiClientError(message, response.status, errors);
   }
 
-  return payload.data;
+  return "data" in payload ? payload.data : (undefined as T);
 }
