@@ -93,20 +93,23 @@ Authentication is custom JWT authentication implemented manually in backend Rout
 User submits credentials
 -> /api/auth route handler
 -> bcrypt password hashing or verification
--> JWT access token issued
--> Frontend sends token in protected requests
+-> JWT access token returned and set in an HTTP-only cookie
+-> protected requests use Authorization: Bearer <token> or cookie fallback
 ```
 
-Protected requests use:
+Protected API requests may use:
 
 ```txt
 Authorization: Bearer <token>
 ```
 
+Browser requests can also authenticate through the HTTP-only auth cookie. When both are present, the `Authorization` header takes priority. A malformed `Authorization` header is rejected with `401` rather than falling back to the cookie.
+
 The auth helper:
 
-* Reads the `Authorization` header
-* Requires the `Bearer` scheme
+* Reads the `Authorization` header first
+* Accepts only the `Bearer <token>` format when the header is present
+* Falls back to the HTTP-only auth cookie when no header is present
 * Verifies the JWT with `JWT_SECRET`
 * Loads the current user from PostgreSQL
 * Returns `401` for missing or invalid tokens

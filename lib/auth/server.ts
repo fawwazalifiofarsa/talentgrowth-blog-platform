@@ -44,24 +44,24 @@ export class AuthError extends Error {
   }
 }
 
-function getBearerToken(request?: Request | NextRequest) {
+export function getTokenFromRequest(request: Request | NextRequest) {
   const authorization = request?.headers.get("authorization");
 
   if (!authorization) {
     return null;
   }
 
-  const [scheme, token] = authorization.split(" ");
+  const match = /^Bearer\s+(.+)$/.exec(authorization.trim());
 
-  if (scheme !== "Bearer" || !token) {
-    return null;
+  if (!match?.[1]?.trim()) {
+    throw new AuthError();
   }
 
-  return token;
+  return match[1].trim();
 }
 
 async function getAuthToken(request?: Request | NextRequest) {
-  const bearerToken = getBearerToken(request);
+  const bearerToken = request ? getTokenFromRequest(request) : null;
 
   if (bearerToken) {
     return bearerToken;

@@ -36,6 +36,7 @@ User submits name, email, password
 -> Route Handler hashes password with bcrypt
 -> Prisma creates user
 -> Route Handler signs JWT
+-> Route Handler sets the HTTP-only auth cookie
 -> Route Handler returns token and safe user data
 ```
 
@@ -66,6 +67,7 @@ User submits email and password
 -> Route Handler finds user by email
 -> Route Handler compares password with bcrypt
 -> Route Handler signs JWT
+-> Route Handler sets the HTTP-only auth cookie
 -> Route Handler returns token and safe user data
 ```
 
@@ -82,7 +84,7 @@ Invalid credentials should return a clear `401` response without exposing whethe
 
 ## Logout Flow
 
-JWT access tokens are stateless, so logout is handled by the frontend deleting the stored token.
+JWT access tokens are stateless. Browser logout clears the HTTP-only auth cookie through the logout flow.
 
 The backend still exposes:
 
@@ -136,16 +138,21 @@ Rules:
 * The response must never include `password_hash`.
 ## Protected Request Flow
 
-The frontend sends the token on protected requests:
+JWT is issued in an HTTP-only cookie for browser usage. Protected route helpers also support `Authorization: Bearer <token>` so API requests can be tested manually and remain aligned with the case-study JWT requirement.
+
+Protected requests may send the token in the header:
 
 ```txt
 Authorization: Bearer <token>
 ```
 
+If both the header and cookie are present, the header token takes priority. If the `Authorization` header is present but malformed, the request is rejected with `401` instead of falling back to the cookie.
+
 The server-side auth helper:
 
 * Reads the `Authorization` header from the `Request`
-* Requires a `Bearer` token
+* Accepts only the `Bearer <token>` format when the header is present
+* Falls back to the HTTP-only auth cookie when no header is present
 * Verifies the token with server-only `JWT_SECRET`
 * Loads the current user from PostgreSQL through Prisma
 * Returns or throws an unauthorized response for missing, invalid, or stale tokens
@@ -232,7 +239,7 @@ Client-side visibility is only for user experience. The Route Handler must enfor
 * `JWT_SECRET` is required only in server-side environment variables.
 * Protected Route Handlers verify JWTs.
 * Post and comment mutations verify ownership.
-* The frontend sends Bearer tokens for protected requests.
-* Logout removes the client token and calls POST /api/auth/logout.
+* Protected Route Handlers support Bearer tokens and HTTP-only cookie fallback.
+* Logout clears the HTTP-only auth cookie and calls POST /api/auth/logout.
 * Password change verifies the current password before updating password_hash.
 

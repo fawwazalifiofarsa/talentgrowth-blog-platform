@@ -45,13 +45,29 @@ Validation error:
 
 ## Authentication
 
-Protected routes require:
+Login and register return a JWT token and also set the HTTP-only auth cookie used by the browser UI.
+
+Protected routes support the case-study header format:
 
 ```txt
 Authorization: Bearer <token>
 ```
 
+They also support the existing HTTP-only auth cookie fallback. The `Authorization` header takes priority when both are present. If the header is present but malformed, the request returns `401` instead of falling back to the cookie.
+
 The token is issued by `/api/auth/register` or `/api/auth/login`.
+
+Example protected request:
+
+```bash
+curl -X POST http://localhost:3000/api/posts \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "title": "Test Post",
+    "content": "Hello from Markdown"
+  }'
+```
 
 ## Status Codes
 
